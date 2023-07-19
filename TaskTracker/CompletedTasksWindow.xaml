@@ -1,0 +1,38 @@
+﻿<Window x:Class="TaskTracker.CompletedTasksWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TaskTracker"
+        mc:Ignorable="d"
+        Title="Completed Tasks" Height="450" Width="800"
+        MinHeight="300" MinWidth="600">
+    <Window.Resources>
+        <local:DateTimeToFormattedStringConverter x:Key="DateTimeConverter" />
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <ListView x:Name="CompletedTasksListView" Margin="10" Grid.Row="0">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Task" DisplayMemberBinding="{Binding Description}" />
+                    <GridViewColumn Header="Completed At">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding DeletedAt, Converter={StaticResource DateTimeConverter}}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Right">
+            <Button Content="Restore Task" Margin="10" Width="120" Click="RestoreButton_Click"/>
+            <Button Content="Delete Task" Margin="10" Width="120" Click="DeleteTaskButton_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

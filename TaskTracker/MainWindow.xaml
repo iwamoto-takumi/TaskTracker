@@ -1,0 +1,92 @@
+﻿<Window x:Class="TaskTracker.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TaskTracker"
+        xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
+        mc:Ignorable="d"
+        Title="Task Tracker" Height="450" Width="800"
+        MinHeight="300" MinWidth="600">
+    <Window.Resources>
+        <local:DateTimeToFormattedStringConverter x:Key="DateTimeConverter" />
+        <CollectionViewSource x:Key="SortedTasks" Source="{Binding Path=Tasks}">
+            <CollectionViewSource.SortDescriptions>
+                <scm:SortDescription PropertyName="CreatedAt" Direction="Descending"/>
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
+        
+        <Style x:Key="WatermarkTextBox" TargetType="{x:Type TextBox}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type TextBox}">
+                        <Grid>
+                            <TextBox x:Name="textSource" Text="{Binding Text, RelativeSource={RelativeSource TemplatedParent}, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" />
+                            <TextBlock Text="Enter a new task and press Add Task" Foreground="Gray" IsHitTestVisible="False" VerticalAlignment="Center">
+                                <TextBlock.Style>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Text, Source={x:Reference textSource}}" Value="">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <ListView x:Name="TasksListView" Grid.Row="0" Margin="10" ItemsSource="{Binding Source={StaticResource SortedTasks}}">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Width="50">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding IsComplete, Mode=TwoWay}" Checked="CheckBox_Checked"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Task" DisplayMemberBinding="{Binding Description}">
+                        <GridViewColumn.HeaderTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Task" MouseLeftButtonDown="TaskHeader_Click" Tag="{Binding Path=SortDirection, Mode=TwoWay}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridViewColumn.HeaderTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Created At">
+                        <GridViewColumn.HeaderTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Created At" MouseLeftButtonDown="CreatedAtHeader_Click" Tag="{Binding Path=SortDirection, Mode=TwoWay}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridViewColumn.HeaderTemplate>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding CreatedAt, Converter={StaticResource DateTimeConverter}}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+        <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Right">
+            <TextBox x:Name="NewTaskTextBox" Style="{StaticResource WatermarkTextBox}" Margin="10" Width="200"/>
+            <Button Content="Add Task" Margin="10" Width="120" Click="AddTaskButton_Click"/>
+            <Button Content="Show Completed Tasks" Margin="10" Width="180" Click="ShowCompletedButton_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>
